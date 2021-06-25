@@ -70,7 +70,7 @@ class l3_switch (EventMixin):
 
   def _handle_expiration (self):
     empty = []
-    for k,v in self.lost_buffers.iteritems():
+    for k,v in self.lost_buffers.items():
       dpid,ip = k
 
       for item in list(v):
@@ -125,6 +125,8 @@ class l3_switch (EventMixin):
             temp_count =diction[event.connection.dpid][event.port]
             temp_count = temp_count+1
             diction[event.connection.dpid][event.port]=temp_count
+            if diction[event.connection.dpid][event.port] > 5 and diction[event.connection.dpid][event.port] <= 10:
+              print "\n***************************** DDOS EXPECTED *******************************\n"
             #print "*****************************************************************************************************************************************************************************"
             print "dpid port and its packet count: ",  str(event.connection.dpid), str(diction[event.connection.dpid]), str(diction[event.connection.dpid][event.port])
             #print "*****************************************************************************************************************************************************************************"
@@ -136,14 +138,14 @@ class l3_switch (EventMixin):
       global set_Timer
 
       if set_Timer==True:
-        for k,v in diction.iteritems():
-          for i,j in v.iteritems():
-            if j >=5:
+        for k,v in diction.items():
+          for i,j in v.items():
+            if j >=10:
               print "_____________________________________________________________________________________________"
               print "\n                               DDOS DETECTED                                              \n"
               print "\n",str(diction)
               print "\n",datetime.datetime.now(),": BLOCKED PORT NUMBER  : ", str(i), " OF SWITCH ID: ", str(k)
-              print "\n___________________________________________________________________________________________"
+              print "\n___________________________________________________________________________________________\n"
               os._exit(0)
               dpid = k
               msg = of.ofp_packet_out(in_port=i)
@@ -166,8 +168,8 @@ class l3_switch (EventMixin):
     if isinstance(packet.next, ipv4):
       log.debug("%i %i IP %s => %s", dpid,inport, packet.next.srcip,packet.next.dstip)
       ent_obj.collectStats(event.parsed.next.dstip)
-      print "Entropy : ",str(ent_obj.value)
-      if ent_obj.value <1.0:
+      print "Entropy Value : ",str(ent_obj.value)
+      if ent_obj.value <0.5:
         preventing()
         if timerSet is not True:
          Timer(1, _timer_func, recurring=True)
@@ -225,7 +227,7 @@ class l3_switch (EventMixin):
         while len(bucket) > MAX_BUFFERED_PER_IP: del bucket[0]
 
         self.outstanding_arps = {k:v for k,v in
-         self.outstanding_arps.iteritems() if v > time.time()}
+         self.outstanding_arps.items() if v > time.time()}
 
         if (dpid,dstaddr) in self.outstanding_arps:
           return
