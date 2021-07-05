@@ -174,6 +174,8 @@ class l3_switch (EventMixin):
         if timerSet is not True:
          Timer(1, _timer_func, recurring=True)
          timerSet=False
+      elif ent_obj.value > 0.5 and ent_obj.value < 0.8:
+          print "NORMAL NETWORK TRAFFIC"
       else:
         timerSet=False
 
